@@ -1,0 +1,469 @@
+---
+title: "Mathematical Statistics Project"
+subtitle: "Confidence Intervals"
+author: "Jacob Bowling"
+format: pdf
+editor: visual
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+# Introduction
+
+This project studies confidence intervals through historical motivation, theoretical derivation, and simulation. The main focus is whether confidence interval procedures achieve their nominal coverage levels in repeated sampling and how interval width changes with sample size. I first examine the Bernoulli model using the Wald interval for a population proportion, then extend the analysis to the exponential model by comparing a large-sample normal interval with a pivotal chi-square interval.
+
+# Part A: Historical and Conceptual Foundations
+
+## Question 1
+
+A confidence interval is a range of plausible values for an unknown population parameter, constructed from sample data. Instead of giving only one estimate, such as a sample mean or sample proportion, a confidence interval gives a lower and upper bound that reflect uncertainty from sampling variability. Essentially, the interval provides a “zone of plausible values” for the parameter. And this is based on the data, the statistical model, and the chosen confidence level.
+
+Interval estimation was an important advancement beyond point estimation because point estimates alone are imprecise. A single estimate may be the best guess for a parameter, but it does not show how much that estimate could change from sample to sample. Confidence intervals address this problem by attaching uncertainty to the estimate. Narrower intervals suggest more precise estimation, while wider intervals suggest greater uncertainty. This makes interval estimation especially valuable in research because conclusions should depend not only on the estimate itself, but also on how reliable that estimate appears to be.
+
+Jerzy Neyman and Ronald Fisher are huge influences for modern statistics, but they did not approach inference in exactly the same way. Fisher contributed a lot to likelihood-based inference, maximum likelihood estimation, experimental design, randomization, and p-values. His work was mainly about using data to estimate unknown values and judge how strong the evidence was against a null hypothesis. Neyman, on the other hand, focused more on repeated-sampling procedures and long-run error rates. His work on confidence intervals is especially relevant here because confidence is not really about assigning probability to one fixed parameter after the interval is made. Instead, it is about whether the method used to build the interval works well over many repeated samples. So, a 95% confidence interval method should contain the true parameter about 95% of the time in the long run. Together their ideas form a major foundation for how uncertainty is handled in statistics today.
+
+## Question 2
+
+When a confidence interval has $(1-\alpha)100\%$ coverage, it means the interval building method is designed to capture the true parameter that percentage of the time in repeated sampling. For example, if $\alpha=0.05$, then the confidence level is 95%. This does not mean that every interval will successfully contain the true parameter. Instead, it means that if we repeatedly took random samples from the same population and constructed a confidence interval the same way each time, about 95% of those intervals would contain the true parameter, while about 5% would miss it.
+
+The frequentist interpretation is important because, in this framework, the population parameter is treated as fixed but unknown. The randomness comes from the sample, not from the parameter. Before the data are collected, the interval endpoints are random because they depend on whatever sample happens to be selected. After one sample is collected and one interval is calculated, that specific interval either contains the true parameter or it does not. We usually do not know which is true, but the confidence level tells us how reliable the method would be over many repeated samples. In other words, saying “we are 95% confident” is shorthand for saying that the procedure used to construct the interval has a 95% long-run success rate under the model assumptions.
+
+One common misconception is saying, “There is a 95% probability that the true parameter is inside this specific interval.” That sounds natural, but it is not the frequentist interpretation. Once the interval has been calculated, the parameter is fixed and the interval is fixed, so the interval either contains the parameter or it does not. The 95% refers to the long-term performance of the method, not to the probability attached to an already computed interval. A better interpretation would be: “This interval was produced using a method that captures the true parameter in about 95% of repeated samples.” This distinction matters because confidence intervals are meant to describe the reliability of an estimation procedure, not to assign probability to a fixed unknown value.
+
+# Part B: Confidence Intervals in a Simple Model
+
+## Question 3
+
+Let $X_1, X_2, \ldots, X_n \sim \text{Bernoulli}(p)$, where $p$ is unknown. Since each $X_i$ is either 0 or 1, the natural estimator of $p$ is the sample proportion,
+
+$$
+\hat{p} = \bar{X} = \frac{1}{n}\sum_{i=1}^{n}X_i.
+$$
+
+For a Bernoulli random variable, the mean and variance are
+
+$$
+E(X_i) = p
+$$
+
+and
+
+$$
+\text{Var}(X_i) = p(1-p).
+$$
+
+Therefore, the sample proportion has mean
+
+$$
+E(\hat{p}) = p
+$$
+
+and variance
+
+$$
+\text{Var}(\hat{p}) = \frac{p(1-p)}{n}.
+$$
+
+For large sample sizes, the Central Limit Theorem gives the approximate sampling distribution
+
+$$
+\hat{p} \approx N\left(p, \frac{p(1-p)}{n}\right).
+$$
+
+This is equivalent to:
+
+$$
+\frac{\hat{p} - p}{\sqrt{p(1-p)/n}} \approx N(0,1).
+$$
+
+Since $p$ is unknown, the standard error is estimated by replacing $p$ with $\hat{p}$:
+
+$$
+SE(\hat{p}) = \sqrt{\frac{\hat{p}(1-\hat{p})}{n}}.
+$$
+
+This gives the Wald confidence interval for $p$:
+
+$$
+\hat{p} \pm z_{\alpha/2}\sqrt{\frac{\hat{p}(1-\hat{p})}{n}}.
+$$
+
+For a 95% confidence interval, $\alpha = 0.05$ and $z_{\alpha/2} = z_{0.025} \approx 1.96$, so the Wald interval becomes
+
+$$
+\hat{p} \pm 1.96\sqrt{\frac{\hat{p}(1-\hat{p})}{n}}.
+$$
+
+The Clopper-Pearson interval is an exact confidence interval for a binomial proportion. Let
+
+$$
+x = \sum_{i=1}^{n}X_i
+$$
+
+be the number of successes in the sample. Unlike the Wald interval, which relies on a large-sample normal approximation, the Clopper-Pearson interval is based directly on the binomial distribution. It can be written using beta distribution quantiles as
+
+$$
+\left[
+B^{-1}\left(\frac{\alpha}{2}; x, n-x+1\right),
+B^{-1}\left(1-\frac{\alpha}{2}; x+1, n-x\right)
+\right],
+$$
+
+with special cases when $x=0$ or $x=n$. Here, $B^{-1}$ represents a beta distribution quantile.
+
+The main difference between the Wald interval and the Clopper-Pearson interval is that the Wald interval is approximate, while the Clopper-Pearson interval is exact. The Wald interval uses the approximate normality of $\hat{p}$, so it tends to work better for large samples and for values of $p$ not too close to 0 or 1. The Clopper-Pearson interval does not rely on the same normal approximation, so it is usually more reliable for small samples. However, it can also be too conservative. This means that its true coverage may be higher than the stated confidence level and the resulting intervals may be wider.
+
+The Wald interval can perform poorly when $n$ is small or when $p$ is close to 0 or 1. In those cases, the binomial distribution may be skewed, so the normal approximation may not be accurate. Also, the estimated standard error,
+
+$$
+\sqrt{\frac{\hat{p}(1-\hat{p})}{n}},
+$$
+
+can become very small when $\hat{p}$ is near 0 or 1. In the extreme cases where $\hat{p}=0$ or $\hat{p}=1$, the estimated standard error is 0, which would make the Wald interval collapse to a single point. That incorrectly suggests no uncertainty, even though there is still uncertainty about the true population proportion. This is why the Wald interval is simple and useful as a first approximation, but its finite-sample coverage needs to be checked through simulation.
+
+# Part C: Simulation and Coverage Probability {#sec-part-c}
+
+## Question 4
+
+In this simulation, I fixed the true Bernoulli parameter at $p = 0.43$. This value is not especially close to either boundary of the parameter space, 0 or 1, so it provides a reasonable setting for studying how the Wald interval behaves as sample size increases (it also happens to be Cameron Carr's basketball jersey number). For each sample size $n \in \{10,50,100,500,1000\}$, I simulated 10,000 random samples from a Bernoulli distribution. For each sample, I computed the sample proportion $\hat{p}$, constructed a 95% Wald confidence interval, and recorded whether the interval contained the true value $p=0.43$. The empirical coverage probability was then estimated as the proportion of simulated intervals that contained the true parameter.
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+
+library(tidyverse)
+library(knitr)
+library(kableExtra)
+
+set.seed(0827)
+
+p_true <- 0.43
+n_values <- c(10, 50, 100, 500, 1000)
+reps <- 10000
+z <- qnorm(0.975)
+
+bernoulli_wald_results <- map_dfr(n_values, function(n) {
+  x <- rbinom(reps, size = n, prob = p_true)
+  phat <- x / n
+  se <- sqrt(phat * (1 - phat) / n)
+  
+  lower <- phat - z * se
+  upper <- phat + z * se
+  
+  tibble(
+    n = n,
+    x = x,
+    phat = phat,
+    lower = lower,
+    upper = upper,
+    covered = lower <= p_true & upper >= p_true,
+    interval_length = upper - lower
+  )
+})
+
+bernoulli_wald_summary <- bernoulli_wald_results %>%
+  group_by(n) %>%
+  summarise(
+    empirical_coverage = mean(covered),
+    average_interval_length = mean(interval_length),
+    .groups = "drop"
+  )
+
+coverage_table <- bernoulli_wald_summary %>%
+  mutate(
+    empirical_coverage = round(empirical_coverage, 4),
+    average_interval_length = round(average_interval_length, 4)
+  ) %>%
+  rename(
+    `Sample Size` = n,
+    `Empirical Coverage` = empirical_coverage,
+    `Average Interval Length` = average_interval_length
+  )
+
+kable(
+  coverage_table,
+  booktabs = TRUE,
+  align = rep("c", ncol(coverage_table))
+) %>%
+  kable_styling(latex_options = "hold_position", font_size = 11) %>%
+  add_header_above(c("Wald Confidence Interval Simulation Results" = ncol(coverage_table)))
+```
+
+The results show that the Wald interval's empirical coverage is generally close to the nominal 95% level, but it does not equal 95% for every sample size. At $n=10$, the empirical coverage is 0.9500, which is (with rounding I'm assuming is happening) exactly the target coverage level. However, at $n=50$, the coverage drops to 0.9338, meaning the Wald interval misses the true parameter more often than a 95% procedure ideally should. For $n=100$, $n=500$, and $n=1000$, the coverage values are 0.9458, 0.9463, and 0.9495, respectively, so the method moves back closer to the nominal level as sample size increases.
+
+Overall, the simulation mostly supports the large-sample reasoning behind the Wald interval. Since the Wald interval relies on the approximate normality of $\hat{p}$, its performance should generally improve as $n$ gets larger. In this simulation, $p=0.43$ is not near 0 or 1, so the Wald interval performs fairly well overall. Still, the lower coverage at $n=50$ shows that finite-sample performance can vary, even when the parameter is not close to the boundary. This shows why empirical coverage is useful: it checks how well the interval procedure actually behaves across repeated samples rather than assuming the nominal confidence level is automatically achieved.
+
+# Part D: Interval Width and Precision
+
+## Question 5
+
+Using the same simulations from [Part C](#sec-part-c), I estimated the average length of the Wald confidence interval for each sample size (I had actually already included it in the table on Part C). The interval length was calculated as the upper endpoint minus the lower endpoint for each simulated interval. I then averaged these lengths across the 10,000 simulations for each value of $n$. This gives a way to measure precision: shorter intervals indicate more precise estimation, while longer intervals indicate more uncertainty.
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+
+width_table <- bernoulli_wald_summary %>%
+  select(n, average_interval_length) %>%
+  mutate(
+    average_interval_length = round(average_interval_length, 4)
+  ) %>%
+  rename(
+    `Sample Size` = n,
+    `Average Interval Length` = average_interval_length
+  )
+
+kable(
+  width_table,
+  booktabs = TRUE,
+  align = rep("c", ncol(width_table))
+) %>%
+  kable_styling(latex_options = "hold_position", font_size = 11) %>%
+  add_header_above(c("Average Wald Confidence Interval Lengths" = ncol(width_table)))
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+
+ggplot(bernoulli_wald_summary, aes(x = n, y = average_interval_length)) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 2.3) +
+  scale_x_log10(breaks = n_values) +
+  labs(
+    title = "Average Wald Interval Length by Sample Size",
+    x = "Sample size",
+    y = "Average interval length"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    plot.title = element_text(
+      hjust = 0.5,
+      face = "bold",
+      size = 13
+    ),
+    panel.grid.minor = element_blank()
+  )
+```
+
+The table and plot show a clear decrease in average interval length as the sample size increases. At $n=10$, the average Wald interval length is 0.5789, meaning the interval is relatively wide. This makes sense because small samples produce more variable estimates of $p$. By $n=50$, the average interval length drops to 0.2716, and by $n=100$, it decreases further to 0.1930. For the larger sample sizes, the interval becomes much narrower, with an average length of 0.0867 at $n=500$ and 0.0613 at $n=1000$.
+
+This pattern shows how increasing sample size improves precision. The Wald interval depends on the standard error $\sqrt{\hat{p}(1-\hat{p})/n}$, so as $n$ increases, the standard error gets smaller. Since the standard error is part of the margin of error, larger samples lead to shorter confidence intervals. In practical terms, the estimate of $p$ becomes more precise because there is less sampling variability.
+
+There is also a trade-off between confidence level and interval width. In this project, the confidence level is fixed at 95%, so the narrowing intervals are due to increasing sample size. However, if the confidence level were increased, the critical value would also increase, making the intervals wider. Wider intervals are more likely to contain the true parameter in repeated sampling, but they are less precise. On the other hand, lowering the confidence level would produce narrower intervals, but the method would miss the true parameter more often. Confidence intervals balance reliability and precision.
+
+# Part E: A Continuous Distribution Case Study
+
+## Question 6
+
+For the continuous case study, I use the rate parameterization of the exponential distribution:
+
+$$
+X_1, X_2, \ldots, X_n \sim \text{Exponential}(\theta),
+$$
+
+where $\theta>0$ is the rate parameter. Under this parameterization,
+
+$$
+f(x;\theta)=\theta e^{-\theta x}, \qquad x>0.
+$$
+
+The likelihood is
+
+$$
+L(\theta)=\prod_{i=1}^{n}\theta e^{-\theta x_i}
+=
+\theta^n e^{-\theta\sum_{i=1}^{n}x_i}.
+$$
+
+The log-likelihood is
+
+$$
+\ell(\theta)=n\log(\theta)-\theta\sum_{i=1}^{n}x_i.
+$$
+
+Differentiating and solving gives the maximum likelihood estimator
+
+$$
+\hat{\theta}
+=
+\frac{n}{\sum_{i=1}^{n}x_i}
+=
+\frac{1}{\bar{X}}.
+$$
+
+For the exponential rate parameter, the Fisher information in one observation is
+
+$$
+I(\theta)=\frac{1}{\theta^2}.
+$$
+
+Thus, for $n$ independent observations,
+
+$$
+I_n(\theta)=\frac{n}{\theta^2}.
+$$
+
+Using the asymptotic normality of the MLE,
+
+$$
+\hat{\theta} \approx N\left(\theta,\frac{\theta^2}{n}\right).
+$$
+
+Since $\theta$ is unknown, I plug in $\hat{\theta}$ to estimate the standard error:
+
+$$
+SE(\hat{\theta}) \approx \frac{\hat{\theta}}{\sqrt{n}}.
+$$
+
+Therefore, the large-sample normal confidence interval for $\theta$ is
+
+$$
+\hat{\theta} \pm z_{\alpha/2}\frac{\hat{\theta}}{\sqrt{n}}.
+$$
+
+For a 95% confidence interval, this becomes
+
+$$
+\hat{\theta} \pm 1.96\frac{\hat{\theta}}{\sqrt{n}}.
+$$
+
+A second confidence interval can be constructed using a pivotal quantity. If $X_i \sim \text{Exponential}(\theta)$, then
+
+$$
+2\theta\sum_{i=1}^{n}X_i \sim \chi^2_{2n}.
+$$
+
+So,
+
+$$
+P\left(
+\chi^2_{\alpha/2,2n}
+\leq
+2\theta\sum_{i=1}^{n}X_i
+\leq
+\chi^2_{1-\alpha/2,2n}
+\right)
+=
+1-\alpha.
+$$
+
+Solving for $\theta$ gives the pivotal confidence interval
+
+$$
+\left[
+\frac{\chi^2_{\alpha/2,2n}}{2\sum_{i=1}^{n}X_i},
+\frac{\chi^2_{1-\alpha/2,2n}}{2\sum_{i=1}^{n}X_i}
+\right].
+$$
+
+For a 95% interval, this is
+
+$$
+\left[
+\frac{\chi^2_{0.025,2n}}{2\sum_{i=1}^{n}X_i},
+\frac{\chi^2_{0.975,2n}}{2\sum_{i=1}^{n}X_i}
+\right].
+$$
+
+Conceptually, the normal interval and the pivotal interval rely on different types of justification. The normal interval is based on the large-sample behavior of the MLE, so it should improve as $n$ gets larger. However, it may be less reliable for small samples because it depends on an approximation. The pivotal interval is based on the exact distribution of $2\theta\sum X_i$, so it is more directly connected to the finite-sample distribution of the data. In this model, the pivotal interval has stronger theoretical support, while the normal interval is simpler and easier to connect to the Wald-style intervals used earlier.
+
+## Question 7
+
+For the exponential simulation study, I fixed the true rate parameter at $\theta = 1$. For each sample size $n \in \{10,50,100,500,1000\}$, I simulated 10,000 samples from an exponential distribution with rate $\theta=1$. For each sample, I computed the MLE $\hat{\theta}=1/\bar{X}$ and constructed two 95% confidence intervals: the large-sample normal interval and the pivotal chi-square interval. I then recorded whether each interval contained the true value $\theta=1$ and calculated the average interval length for each method and sample size.
+
+\newpage
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+
+set.seed(0827)
+
+theta_true <- 1
+n_values <- c(10, 50, 100, 500, 1000)
+reps <- 10000
+z <- qnorm(0.975)
+
+exponential_results <- map_dfr(n_values, function(n) {
+  
+  samples <- matrix(
+    rexp(reps * n, rate = theta_true),
+    nrow = reps,
+    ncol = n
+  )
+  
+  sample_sums <- rowSums(samples)
+  theta_hat <- n / sample_sums
+  
+  normal_lower <- theta_hat - z * theta_hat / sqrt(n)
+  normal_upper <- theta_hat + z * theta_hat / sqrt(n)
+  
+  pivotal_lower <- qchisq(0.025, df = 2 * n) / (2 * sample_sums)
+  pivotal_upper <- qchisq(0.975, df = 2 * n) / (2 * sample_sums)
+  
+  normal_results <- tibble(
+    n = n,
+    method = "Normal",
+    theta_hat = theta_hat,
+    lower = normal_lower,
+    upper = normal_upper,
+    covered = lower <= theta_true & upper >= theta_true,
+    interval_length = upper - lower
+  )
+  
+  pivotal_results <- tibble(
+    n = n,
+    method = "Pivotal",
+    theta_hat = theta_hat,
+    lower = pivotal_lower,
+    upper = pivotal_upper,
+    covered = lower <= theta_true & upper >= theta_true,
+    interval_length = upper - lower
+  )
+  
+  bind_rows(normal_results, pivotal_results)
+})
+
+exponential_summary <- exponential_results %>%
+  group_by(n, method) %>%
+  summarise(
+    empirical_coverage = mean(covered),
+    average_interval_length = mean(interval_length),
+    .groups = "drop"
+  )
+
+exponential_table <- exponential_summary %>%
+  mutate(
+    empirical_coverage = round(empirical_coverage, 4),
+    average_interval_length = round(average_interval_length, 4)
+  ) %>%
+  rename(
+    `Sample Size` = n,
+    `Method` = method,
+    `Empirical Coverage` = empirical_coverage,
+    `Average Interval Length` = average_interval_length
+  )
+
+kable(
+  exponential_table,
+  booktabs = TRUE,
+  align = rep("c", ncol(exponential_table))
+) %>%
+  kable_styling(latex_options = "hold_position", font_size = 11) %>%
+  add_header_above(c("Exponential Confidence Interval Simulation Results" = ncol(exponential_table)))
+```
+
+The exponential simulation results show that both the large-sample normal interval and the pivotal chi-square interval perform close to the nominal 95% confidence level across all sample sizes. At $n=10$, the normal interval has empirical coverage of 0.9543, while the pivotal interval has coverage of 0.9481. Both are very close to 0.95, although the normal interval is slightly above the target and the pivotal interval is slightly below it in this simulation.
+
+As the sample size increases, the two methods continue to behave very similarly. At $n=50$, the empirical coverage values are 0.9506 for the normal interval and 0.9521 for the pivotal interval. At $n=100$, they are 0.9528 and 0.9514, respectively. For the larger sample sizes, the coverage remains close to 95%, with both methods slightly below 0.95 at $n=500$ and $n=1000$. Since these estimates are based on simulation, small differences from exactly 0.95 are expected.
+
+The average interval lengths also decrease steadily as sample size increases. For the normal interval, the average length drops from 1.3817 at $n=10$ to 0.1241 at $n=1000$. For the pivotal interval, the average length drops from 1.3699 at $n=10$ to 0.1240 at $n=1000$. This shows the same precision pattern seen in the Bernoulli simulation: larger samples produce narrower confidence intervals because there is less sampling variability.
+
+Overall, the finite-sample performance of the two exponential intervals is very similar in this simulation. The pivotal interval has stronger theoretical justification because it is based on the exact distribution of $2\theta\sum X_i$, while the normal interval depends on the large-sample approximation of the MLE. However, for $\theta=1$ and the sample sizes used here, the normal approximation performs well even at $n=10$. By larger sample sizes, the two methods are almost indistinguishable in both empirical coverage and average interval length. This suggests that, in this exponential setting, the large-sample normal interval is already reliable, while the pivotal interval provides a more exact theoretical foundation.
