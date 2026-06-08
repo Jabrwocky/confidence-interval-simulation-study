@@ -40,9 +40,4 @@ Using R and Quarto, the analysis compares confidence interval procedures for bot
 - Statistical simulation
 - Mathematical derivation and asymptotic theory
 
-## Files
-- report.pdf: Final written report containing derivations, simulations, tables, and figures
-- analysis.qmd: Quarto source file used to generate the report
-- code/: Supporting R code and simulation scripts
-
 This project was completed as part of coursework in mathematical statistics and is included as a public example of statistical theory, simulation, and reproducible analytical reporting.
